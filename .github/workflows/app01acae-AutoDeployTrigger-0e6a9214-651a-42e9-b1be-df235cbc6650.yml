@@ -1,0 +1,42 @@
+name: Trigger auto deployment for app01acae
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ main ]
+    paths:
+    - '**'
+    - '.github/workflows/app01acae-AutoDeployTrigger-0e6a9214-651a-42e9-b1be-df235cbc6650.yml'
+
+  # Allow mannually trigger 
+  workflow_dispatch:
+      
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.APP01ACAE_AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }} 
+          registryUrl: containerregistry000.azurecr.io
+          registryUsername: ${{ secrets.APP01ACAE_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.APP01ACAE_REGISTRY_PASSWORD }}
+          containerAppName: app01acae
+          resourceGroup: tamopsaca456-rg
+          imageToBuild: containerregistry000.azurecr.io/app01acae:${{ github.sha }}
+          
+
+     
+
